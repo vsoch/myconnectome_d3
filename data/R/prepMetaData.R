@@ -1,4 +1,4 @@
-# This script is going to create a file with meta data for different ordersings of a
+# This script is going to create a file with meta data for different orderings of a
 # my connectome clustering, including:
 #
 # final_groups: nodes grouped by network, regardless of left or right
@@ -33,6 +33,33 @@ hemispheres = data$hemis
 # These are the cluster groups - the coloring for the network.  Equivalent network will have same
 # color on both right and left.
 write.table(t(groups),file=coloring_file,row.names=FALSE,col.names=FALSE,quote=FALSE,sep=" ")
+
+# Here we have custom color scheme, from https://dl.dropboxusercontent.com/u/2441264/MyConnectome_NudgeIt.pdf page 14
+color_labels = c("Default","Second-Dorsal-Attention","Ventral-Attention-Language","Second-Visual","Frontal-Parietal","Somatomotor","none","Parietal-Episodic-Retrieval","Parieto-Occipital","Cingulo-opercular","Salience","Frontal-Parietal-Other","First-Dorsal-Attention","First-Visual-V1+","subcortical")
+colors = c("#ff2700","#d6add6","#007d7d","#393FAC","#FFFB00","#00ffff","94CD54","#CC0066","#003eff","#fbfbda","#822082","#000000","#c46b8b","#00f700","#94cd54","#CC0066")
+# missing from the pdf are colors for "subcortical" and "none" - we will make subcortical a professional pink/purple.
+# default: ff2700
+# visual 2: 393fac
+# fronto parietal fffb00
+# v1 94cd54
+# dorsal attention 1 00f700
+# dorsal attention 2 d6add6
+# ventral attention 007d7d
+# salience 000000
+# cingulo opucular 822082
+# somato motor 00ffff
+# frontal parietal 2 c46b8b
+# parietal episodic retrieval 003eff
+# parieto occipital fbfbda
+
+names(colors) = color_labels
+
+# Add colors to network
+color_vector = c()
+for (m in 1:nrow(data)){
+  color_vector = c(color_vector,colors[data$network[[m]]])    
+}
+data = cbind(data,color=color_vector)
 
 # CREATE final_groups -------------------------------------------------------------------------------
 # Let's iterate through the unique groups, and save a vector that counts from 1 to N

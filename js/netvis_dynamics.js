@@ -298,7 +298,7 @@ define(["lib/d3", "netvis"], function(d3, netvis) {
         .style("top",  (d3.event.pageY) + "px")
         .transition()
         .duration(50)
-        .style("opacity", 0.7)
+        .style("opacity", 0.9)
     }
 
     /*

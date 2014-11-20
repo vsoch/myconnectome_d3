@@ -44,8 +44,8 @@ define(["lib/d3"], function(d3) {
   // performance hit for large networks.
   visDefaults.DEF_EDGE_COLOUR  = "default";
   visDefaults.HLT_EDGE_COLOUR  = "highlight";
-  visDefaults.DEF_EDGE_WIDTH   = 1.5;
-  visDefaults.HLT_EDGE_WIDTH   = 4;
+  visDefaults.DEF_EDGE_WIDTH   = 4;
+  visDefaults.HLT_EDGE_WIDTH   = 8;
   visDefaults.DEF_EDGE_OPACITY = 1.0;
   visDefaults.HLT_EDGE_OPACITY = 0.8;
 
@@ -72,6 +72,9 @@ define(["lib/d3"], function(d3) {
 
    d3.csv("data/dataset1/braindonutlabels.csv", function(error, data) {
 
+  var outerRadius = network.display.radius - 85;
+  var innerRadius = network.display.radius - 105;
+  
   data.forEach(function(d) {
     d.counts = +d.counts;
   });
@@ -83,15 +86,43 @@ define(["lib/d3"], function(d3) {
 
   g.append("path")
       .attr("d", arc)
+      .on("mouseover.path",function(d) { 
+        d3.select("#titleBox")
+          .selectAll("h3")
+          .text(d.data.label);})
       .style("fill", function(d) { return d.data.colors; });
 
-  g.append("text")
-      //.attr("transform", function(d) { return "translate(" + arc.centroid(d) + ") rotate(" + d.rotate + ")"; })
-	  .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
-      .attr("dy", ".35em")
-      .style("text-anchor", "middle")
-      .text(function(d) { return d.data.label; });
+  //g.append("text")
+	//  .attr("transform", function(d,i) { 
+        //    if (i <= 6){
+        //      centroid = [ arc.centroid(d)[0] + 150,arc.centroid(d)[1]];
+        //      return "translate(" + centroid + ")";
+        //    }
+        //    if (i >= 12){
+        //      centroid = [ arc.centroid(d)[0] - 100,arc.centroid(d)[1] - 100];
+        //      return "translate(" + centroid + ")";
+        //    }
+        //    if (i > 7 && i <= 14) {
+        //      centroid = [ arc.centroid(d)[0] + 150,arc.centroid(d)[1] + 100];
+        //      return "translate(" + centroid + ")";
+        //    }
+        //    if (i > 7 && i < 14) {
+        //      centroid = [ arc.centroid(d)[0] + 100,arc.centroid(d)[1] - 100];
+        //      console.log()
+        //      return "translate(" + centroid + ")";
+        //    }
+            //if (/Left/.test(d.data.label)) {
+            //  return "translate(" + leftcentroid + ")";}
+            //else { return "translate(" + rightcentroid + ")";}
+       //})
+      //.attr("dy", ".35em")
+      //.style("text-anchor", "middle")
+      //.style("fill", "Purple")
+      //.style("font", "bold 12px Arial")
+      //.text(function(d) { return d.data.label; });
+
     });
+
    }
   
   /*
@@ -113,9 +144,9 @@ define(["lib/d3"], function(d3) {
     var svg    = network.display.svg;
     var radius = network.display.radius;
 
-	// We need to write a "comparator" function that will determine
-	// the node ordering based on the "order" variable
-	function comparator(a, b) {
+    // We need to write a "comparator" function that will determine
+    // the node ordering based on the "order" variable
+    function comparator(a, b) {
       //return d3.ascending(a.hemisphere + "-" + a.name, b.hemisphere + "-" + b.name);
 	  return d3.ascending(a.order, b.order);
     }
@@ -130,10 +161,10 @@ define(["lib/d3"], function(d3) {
 		.size([360, radius-110])
 		.sort(comparator);
     var rootNode       = network.treeNodes[network.treeNodes.length - 1];
-	var clusteredNodes = clusterLayout.nodes(rootNode);
+    var clusteredNodes = clusterLayout.nodes(rootNode);
     var leafNodes      = network.nodes;
     
-	// Can we change the order of the nodes?
+    // Can we change the order of the nodes?
     var orderedNodes   = clusteredNodes.sort(comparator);
 	
     // Position nodes in a big circle.
@@ -181,8 +212,9 @@ define(["lib/d3"], function(d3) {
 	  return classes.join(" ");
     }
 
+
     // Draw the nodes
-	network.display.svgNodes
+    network.display.svgNodes
       .selectAll("circle")
 	  .data(network.nodes)
       .enter()
@@ -191,8 +223,14 @@ define(["lib/d3"], function(d3) {
       .attr("transform", positionNode)
       .attr("opacity",   network.display.DEF_NODE_OPACITY)
       .attr("r",         network.display.DEF_NODE_SIZE)
-      .attr("fill",      network.scaleInfo.nodeColour);
-      
+      .attr("fill",      network.scaleInfo.nodeColour)
+      // On mouseover we should show the network image in the image div
+      .on("mouseover.image",function(node){
+        d3.select("#imageBox")
+          .selectAll("img")
+          .attr("src", node.thumbnail)
+      });     
+
     // Draw the node labels
     network.display.svgNodeLabels
       .selectAll("text")
@@ -208,7 +246,9 @@ define(["lib/d3"], function(d3) {
       .attr("fill",         network.scaleInfo.nodeColour)
       .attr("transform",    positionLabel)
       .style("text-anchor", anchorLabel)
-	  .text(function(node) {return node.name; });
+      //TODO: When we have new data, add a variable to show/not show 
+      // text label so we display the first name of each!
+	  .text(function(node) { return node.name; });
 
     // Draw the node thumbnails 
     network.display.svgThumbnails
@@ -221,7 +261,10 @@ define(["lib/d3"], function(d3) {
       .attr("visibility",  network.display.DEF_THUMB_VISIBILITY)
       .attr("width",       network.display.DEF_THUMB_WIDTH)
       .attr("height",      network.display.DEF_THUMB_HEIGHT)
-      .attr("xlink:href",  function(node) {return node.thumbnail;});
+      
+      
+      
+     //.attr("xlink:href",  function(node) {return node.thumbnail;});
   }
 
   /*
@@ -241,7 +284,8 @@ define(["lib/d3"], function(d3) {
     var bundle = d3.layout.bundle();
     var line   = d3.svg.line.radial()
       .interpolate("bundle")
-      .tension(.85)
+      // Tension defines distances / length of edges
+      .tension(.25)
       .radius(function(node) { return node.y - 8; })
       .angle( function(node) { return node.x / 180 * Math.PI; });
 
