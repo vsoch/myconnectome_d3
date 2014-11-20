@@ -72,12 +72,13 @@
     // Edge width scale
     var edgeWidthScale = d3.scale.linear()
       .domain([-ewMax, -ewMin, -0, ewMin, ewMax])
-      .range( [ 15,     1,      0, 1,     15]);
+      .range( [ 18,     1,      0, 1,     18]);
 
     // Colour scale for highlighted edges
     var hltEdgeColourScale = d3.scale.linear()
       .domain([ -ecMax,   0,          ecMax  ])
-      .range( ["#0000dd", "#eeeeee", "#dd0000"]);
+      .range(["#FF9C39","#eeeeee","#7AA6FE"]);
+      //.range( ["#0000dd", "#eeeeee", "#dd0000"]);
 
     // The colour scale for non-highlighted edges
     // is a washed out version of that used for 
@@ -85,7 +86,7 @@
     // effect with opacity, but avoiding opacity
     // gives better performance.
     var edgeColourHltToDef = d3.scale.linear()
-      .domain([0,   255])
+      .domain([150,   255])
       .range( [210, 240]);
 
     var defEdgeColourScale = function(val) {
